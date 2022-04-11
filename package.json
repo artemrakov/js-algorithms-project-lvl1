@@ -1,0 +1,37 @@
+{
+  "name": "hexlet/code",
+  "type": "module",
+  "version": "1.0.0",
+  "simple-git-hooks": {
+    "pre-push": "make lint"
+  },
+  "description": "[![Actions Status](https://github.com/artemrakov/js-algorithms-project-lvl1/workflows/hexlet-check/badge.svg)](https://github.com/artemrakov/js-algorithms-project-lvl1/actions)",
+  "engines": {
+    "node": ">=16"
+  },
+  "bin": {
+    "search": "bin/search.js"
+  },
+  "scripts": {
+    "test": "npx jest --bail"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artemrakov/js-algorithms-project-lvl1.git"
+  },
+  "author": "Artem Rakov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/artemrakov/js-algorithms-project-lvl1/issues"
+  },
+  "homepage": "https://github.com/artemrakov/js-algorithms-project-lvl1#readme",
+  "devDependencies": {
+    "@jest/globals": "^27.5.1",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.4",
+    "jest": "^27.5.1",
+    "simple-git-hooks": "^2.7.0"
+  }
+}
