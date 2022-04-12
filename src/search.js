@@ -3,8 +3,9 @@ const search = (docs, target) => {
 
   for (let i = 0; i < docs.length; i += 1) {
     const { id, text } = docs[i];
+    const term = text.match(/\w+/g);
 
-    if (text.split(' ').includes(target)) {
+    if (term.includes(target)) {
       result.push(id);
     }
   }
@@ -13,7 +14,15 @@ const search = (docs, target) => {
 };
 
 const buildSearchEngine = (docs) => ({
-  search: (target) => search(docs, target),
+  search: (target) => {
+    const term = target.match(/\w+/g);
+
+    if (!term) {
+      return [];
+    }
+
+    return search(docs, term.join(''));
+  },
 });
 
 export default buildSearchEngine;
