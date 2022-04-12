@@ -3,40 +3,63 @@
 *  Итоговая сумма и является релевантностью документа. Чем больше сумма,
 *  тем больше документ подходит под запрос. */
 
-const search = (docs, targets) => {
-  // keep track of min count 5th item
-  const result = [];
+const search = (index, targets) => {
+  const result = {};
 
-  for (let i = 0; i < docs.length; i += 1) {
-    const { id, text } = docs[i];
-    const term = text.match(/\w+/g);
+  for (let i = 0; i < targets.length; i += 1) {
+    const target = targets[i];
+    const counts = index[target];
 
-    const count = term.reduce((acc, word) => {
-      if (targets.include(word)) {
-        return acc + 1;
-      }
-
-      return acc;
-    }, 0);
-
-    if (count !== 0) {
-      result.push({ count, id });
-    }
+    Object.entries(counts).forEach(([id, count]) => {
+      result[id] = (result[id] ?? 0) + count;
+    });
   }
 
-  return result.sort((a, b) => b.count - a.count).map((doc) => doc.id);
+  return Object.keys(result).sort((a, b) => {
+    return result[b] === result[a] ? b - a : result[b] - result[a];
+  });
 };
 
-const buildSearchEngine = (docs) => ({
-  search: (target) => {
-    const term = target.match(/\w+/g);
+const buildIndex = (docs) => {
+  // const stopWords = ['a', 'for', ]
 
-    if (!term) {
-      return [];
-    }
+  const index = docs.reduce((acc, doc) => {
+    const { id, text } = doc;
+    const term = text.match(/\w+/g);
 
-    return search(docs, term);
-  },
-});
+    term.forEach((word) => {
+      if (word.length < 2) {
+        return;
+      }
+
+      if (word in acc) {
+        acc[word][id] = (acc[word][id] ?? 0) + 1;
+      } else {
+        acc[word] = { [id]: 1 };
+      }
+    });
+
+    return acc;
+  }, {});
+
+  return index;
+};
+
+const buildSearchEngine = (docs) => {
+  const index = buildIndex(docs);
+  console.log(index);
+
+  return {
+    search: (target) => {
+      const term = target.match(/\w+/g);
+
+      if (!term) {
+        return [];
+      }
+
+      return search(index, term);
+    },
+  };
+};
 
 export default buildSearchEngine;
