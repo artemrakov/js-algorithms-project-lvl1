@@ -21,5 +21,5 @@ test('search', () => {
   const doc3 = { id: 'doc3', text: "I'm your shooter." };
   const searchEngine = buildSearchEngine([doc1, doc2, doc3]);
 
-  expect(searchEngine.search('shoot')).toEqual(['doc1', 'doc2']);
+  expect(searchEngine.search('shoot')).toEqual(['doc2', 'doc1']);
 });
