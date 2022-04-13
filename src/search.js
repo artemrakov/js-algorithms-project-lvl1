@@ -39,7 +39,7 @@ const buildIndex = (docs) => {
 };
 
 const calculateTfIdf = (index, counts, totalNumberOfDocs) => {
-  return Object.entries(index).reduce((acc, [word, documents]) => {
+  const tfIdf = Object.entries(index).reduce((acc, [word, documents]) => {
     const documentKeys = Object.keys(documents);
     const inverseIndex = Math.log(totalNumberOfDocs / documentKeys.length);
 
@@ -52,6 +52,8 @@ const calculateTfIdf = (index, counts, totalNumberOfDocs) => {
 
     return acc;
   }, {});
+
+  return tfIdf;
 };
 
 const buildSearchEngine = (docs) => {
