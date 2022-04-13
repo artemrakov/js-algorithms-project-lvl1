@@ -1,8 +1,8 @@
 const search = (tfIdf, targets) => {
   const result = targets.reduce((acc, target) => {
-    const counts = tfIdf[target] ?? {};
+    const counts = tfIdf.get(target) ?? new Map();
 
-    Object.entries(counts).forEach(([id, count]) => {
+    counts.forEach((count, id) => {
       acc[id] = (acc[id] ?? 0) + count;
     });
 
@@ -23,35 +23,38 @@ const buildIndex = (docs) => {
         return;
       }
 
-      if (word in documents) {
-        documents[word][id] = (documents[word][id] ?? 0) + 1;
+      if (documents.has(word)) {
+        const wordMap = documents.get(word);
+        const prev = wordMap.get(id) ?? 0;
+        wordMap.set(id, prev + 1);
         counts[word] += 1;
       } else {
-        documents[word] = { [id]: 1 };
+        const idMap = new Map();
+        idMap.set(id, 1);
+        documents.set(word, idMap);
         counts[word] = 1;
       }
     });
 
     return acc;
-  }, [{}, {}]);
+  }, [new Map(), {}]);
 
   return index;
 };
 
 const calculateTfIdf = (index, counts, totalNumberOfDocs) => {
-  const tfIdf = Object.entries(index).reduce((acc, [word, documents]) => {
-    const documentKeys = Object.keys(documents);
-    const inverseIndex = Math.log(totalNumberOfDocs / documentKeys.length);
+  const tfIdf = new Map();
 
-    acc[word] = {};
-    documentKeys.forEach((key) => {
-      const countInDocument = documents[key];
-      const tf = countInDocument / counts[word];
-      acc[word][key] = tf * inverseIndex;
+  index.forEach((documents, word) => {
+    const inverseIndex = Math.log(totalNumberOfDocs / documents.size);
+
+    const wordMap = new Map();
+    documents.forEach((countInDoc, key) => {
+      const tf = countInDoc / counts[word];
+      wordMap.set(key, tf * inverseIndex);
+      tfIdf.set(word, wordMap);
     });
-
-    return acc;
-  }, {});
+  });
 
   return tfIdf;
 };
