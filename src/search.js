@@ -1,31 +1,23 @@
-/* Релевантность документа оценивается следующим образом: для каждого уникального слова из запроса
-*  берётся число его вхождений в документ, полученные числа для всех слов из запроса суммируются.
-*  Итоговая сумма и является релевантностью документа. Чем больше сумма,
-*  тем больше документ подходит под запрос. */
-
 const search = (index, targets) => {
-  const result = {};
-
-  for (let i = 0; i < targets.length; i += 1) {
-    const target = targets[i];
-    const counts = index[target];
+  const result = targets.reduce((acc, target) => {
+    const counts = index[target] ?? {};
 
     Object.entries(counts).forEach(([id, count]) => {
-      result[id] = (result[id] ?? 0) + count;
+      acc[id] = (acc[id] ?? 0) + count;
     });
-  }
+
+    return acc;
+  }, {});
 
   return Object.keys(result).sort((a, b) => {
-    return result[b] === result[a] ? b - a : result[b] - result[a];
+    return result[b] === result[a] ? Number(a) - Number(b) : result[b] - result[a];
   });
 };
 
 const buildIndex = (docs) => {
-  // const stopWords = ['a', 'for', ]
-
   const index = docs.reduce((acc, doc) => {
     const { id, text } = doc;
-    const term = text.match(/\w+/g);
+    const term = text.match(/\w+/g) ?? [];
 
     term.forEach((word) => {
       if (word.length < 2) {
@@ -45,18 +37,19 @@ const buildIndex = (docs) => {
   return index;
 };
 
+// const calculateTfIdf = (index, totalNumberOfDocs) => {
+//   return Object.entries(index).reduce((acc, [word, documents]) => {
+//     const inverseIndex = totalNumberOfDocs / documents.length;
+//   }, {});
+// }
+
 const buildSearchEngine = (docs) => {
   const index = buildIndex(docs);
-  console.log(index);
+  // const tfIdf = calculateTfIdf(index, docs.length);
 
   return {
     search: (target) => {
-      const term = target.match(/\w+/g);
-
-      if (!term) {
-        return [];
-      }
-
+      const term = target.match(/\w+/g) ?? [];
       return search(index, term);
     },
   };
