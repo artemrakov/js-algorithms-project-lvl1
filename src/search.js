@@ -1,6 +1,6 @@
-const search = (index, targets) => {
+const search = (tfIdf, targets) => {
   const result = targets.reduce((acc, target) => {
-    const counts = index[target] ?? {};
+    const counts = tfIdf[target] ?? {};
 
     Object.entries(counts).forEach(([id, count]) => {
       acc[id] = (acc[id] ?? 0) + count;
@@ -14,6 +14,7 @@ const search = (index, targets) => {
 
 const buildIndex = (docs) => {
   const index = docs.reduce((acc, doc) => {
+    const [documents, counts] = acc;
     const { id, text } = doc;
     const term = text.match(/\w+/g) ?? [];
 
@@ -22,33 +23,45 @@ const buildIndex = (docs) => {
         return;
       }
 
-      if (word in acc) {
-        acc[word][id] = (acc[word][id] ?? 0) + 1;
+      if (word in documents) {
+        documents[word][id] = (documents[word][id] ?? 0) + 1;
+        counts[word] += 1;
       } else {
-        acc[word] = { [id]: 1 };
+        documents[word] = { [id]: 1 };
+        counts[word] = 1;
       }
     });
 
     return acc;
-  }, {});
+  }, [{}, {}]);
 
   return index;
 };
 
-// const calculateTfIdf = (index, totalNumberOfDocs) => {
-//   return Object.entries(index).reduce((acc, [word, documents]) => {
-//     const inverseIndex = totalNumberOfDocs / documents.length;
-//   }, {});
-// }
+const calculateTfIdf = (index, counts, totalNumberOfDocs) => {
+  return Object.entries(index).reduce((acc, [word, documents]) => {
+    const documentKeys = Object.keys(documents);
+    const inverseIndex = Math.log(totalNumberOfDocs / documentKeys.length);
+
+    acc[word] = {};
+    documentKeys.forEach((key) => {
+      const countInDocument = documents[key];
+      const tf = countInDocument / counts[word];
+      acc[word][key] = tf * inverseIndex;
+    });
+
+    return acc;
+  }, {});
+};
 
 const buildSearchEngine = (docs) => {
-  const index = buildIndex(docs);
-  // const tfIdf = calculateTfIdf(index, docs.length);
+  const [index, counts] = buildIndex(docs);
+  const tfIdf = calculateTfIdf(index, counts, docs.length);
 
   return {
     search: (target) => {
       const term = target.match(/\w+/g) ?? [];
-      return search(index, term);
+      return search(tfIdf, term);
     },
   };
 };
