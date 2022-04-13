@@ -52,8 +52,9 @@ const calculateTfIdf = (index, counts, totalNumberOfDocs) => {
     documents.forEach((countInDoc, key) => {
       const tf = countInDoc / counts[word];
       wordMap.set(key, tf * inverseIndex);
-      tfIdf.set(word, wordMap);
     });
+
+    tfIdf.set(word, wordMap);
   });
 
   return tfIdf;
