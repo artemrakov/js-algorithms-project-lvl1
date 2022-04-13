@@ -9,9 +9,7 @@ const search = (index, targets) => {
     return acc;
   }, {});
 
-  return Object.keys(result).sort((a, b) => {
-    return result[b] === result[a] ? Number(a) - Number(b) : result[b] - result[a];
-  });
+  return Object.keys(result).sort((a, b) => result[b] - result[a]);
 };
 
 const buildIndex = (docs) => {
