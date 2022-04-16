@@ -1,3 +1,7 @@
+type DictionaryType = Map<string, Map<string, number>>;
+type CountType = {[key: string]: number};
+type DocType = { id: string, text: string };
+
 const search = (tfIdf, targets) => {
   const result = targets.reduce((acc, target) => {
     const counts = tfIdf.get(target) ?? new Map();
@@ -12,11 +16,14 @@ const search = (tfIdf, targets) => {
   return Object.keys(result).sort((a, b) => result[b] - result[a]);
 };
 
-const buildIndex = (docs) => {
+
+const buildIndex = (docs: DocType[]): [DictionaryType, CountType]  => {
   const index = docs.reduce((acc, doc) => {
-    const [documents, counts] = acc;
+    // const [documents, counts] = acc;
+    const documents: DictionaryType = acc[0];
+    const counts: CountType = acc[1];
     const { id, text } = doc;
-    const term = text.match(/\w+/g) ?? [];
+    const term: string[] = text.match(/\w+/g) ?? [];
 
     term.forEach((word) => {
       if (word.length < 2) {
@@ -24,12 +31,12 @@ const buildIndex = (docs) => {
       }
 
       if (documents.has(word)) {
-        const wordMap = documents.get(word);
+        const wordMap: Map<string, number> = documents.get(word);
         const prev = wordMap.get(id) ?? 0;
         wordMap.set(id, prev + 1);
-        counts[word] += 1;
+        counts[word] = (counts[word] ?? 0) + 1;
       } else {
-        const idMap = new Map();
+        const idMap = new Map<string, number>();
         idMap.set(id, 1);
         documents.set(word, idMap);
         counts[word] = 1;
@@ -37,9 +44,9 @@ const buildIndex = (docs) => {
     });
 
     return acc;
-  }, [new Map(), {}]);
+  }, [new Map<string, Map<string, number>>(), {}]);
 
-  return index;
+  return [index[0], index[1]];
 };
 
 const calculateTfIdf = (index, counts, totalNumberOfDocs) => {
