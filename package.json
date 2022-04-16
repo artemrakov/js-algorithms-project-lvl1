@@ -15,8 +15,7 @@
   "scripts": {
     "test": "npx jest --bail",
     "build": "rm -rf ./build && tsc",
-    "start:dev": "nodemon",
-    "start": "npm run build && node build/index.js",
+    "start": "npm run build && node build/search.js",
     "lint": "eslint . --ext .ts"
   },
   "repository": {
