@@ -8,8 +8,8 @@ run:
 	bin/search 10
 
 install-deps:
-	make build
 	npm ci
+	make build
 
 test:
 	make build
