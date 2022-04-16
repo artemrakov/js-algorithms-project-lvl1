@@ -24,4 +24,4 @@ lint:
 publish:
 	npm publish
 
-.PHONY: test
+.PHONY: test build
